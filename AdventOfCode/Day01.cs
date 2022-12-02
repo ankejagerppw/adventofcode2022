@@ -2,63 +2,34 @@
 
 public class Day01 : BaseDay
 {
-    private readonly string[] _input;
+    private readonly List<int> _input;
 
     public Day01()
     {
         _input = File
-            .ReadLines(InputFilePath)
-            .ToArray();
+            .ReadAllText(InputFilePath)
+            .Split("\r\n\r\n")
+            .Select(elfCalories =>
+                elfCalories
+                    .Split("\r\n")
+                    .Select(int.Parse)
+                    .Sum()
+            )
+            .ToList();
     }
 
     public override ValueTask<string> Solve_1()
     {
-        int maxCalories = 0;
-        int sumCalories = 0;
-        foreach (string line in _input)
-        {
-            int nbrCalories;
-            if (int.TryParse(line, out nbrCalories))
-            {
-                sumCalories += nbrCalories;
-            }
-            else
-            {
-                if (sumCalories > maxCalories)
-                {
-                    maxCalories = sumCalories;
-                }
-
-                sumCalories = 0;
-            }
-        }
-
-        return new ValueTask<string>($"Max nbr calories: {maxCalories}");
+        return new ValueTask<string>($"Max nbr calories: {_input.Max()}");
     }
 
     public override ValueTask<string> Solve_2()
     {
-        List<int> calories = new List<int>();
-
-        List<int> caloriesPerElf = new List<int>();
-        foreach (string line in _input)
-        {
-            if (int.TryParse(line, out int nbrCalories))
-            {
-                caloriesPerElf.Add(nbrCalories);
-            }
-            else
-            {
-                calories.Add(caloriesPerElf.Sum());
-                caloriesPerElf.Clear();
-            }
-        }
-
-        int sumTopCalories = calories
+        int sumTopCalories = _input
             .OrderByDescending(i => i)
             .Take(3)
             .Sum();
 
-        return new($"Sum of top 3 calories: {sumTopCalories}");
+        return new ValueTask<string>($"Sum of top 3 calories: {sumTopCalories}");
     }
 }
